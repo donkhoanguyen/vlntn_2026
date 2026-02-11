@@ -2,27 +2,32 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { SmileChargeScene } from './scenes/SmileChargeScene';
 import { SmileDebugApp } from './smile/SmileDebugApp';
+import stage1Kitchen from '../images/stage1_kitchen.png';
 import './styles.css';
 
-type Route = 'home' | 'smile-debug' | 'smile-charge';
+type Route = 'landing' | 'home' | 'smile-debug' | 'smile-charge';
 
 function App() {
-  const [route, setRoute] = useState<Route>('home');
+  const [route, setRoute] = useState<Route>('landing');
 
   useEffect(() => {
-    // Read initial route from hash
     const hash = window.location.hash.slice(1);
     if (hash === 'smile-debug' || hash === 'smile-charge') {
       setRoute(hash);
+    } else if (hash === 'home') {
+      setRoute('home');
+    } else {
+      setRoute('landing');
     }
 
-    // Listen for hash changes
     const handleHashChange = () => {
       const newHash = window.location.hash.slice(1);
       if (newHash === 'smile-debug' || newHash === 'smile-charge') {
         setRoute(newHash);
-      } else {
+      } else if (newHash === 'home') {
         setRoute('home');
+      } else {
+        setRoute('landing');
       }
     };
 
@@ -32,20 +37,45 @@ function App() {
 
   const navigate = (newRoute: Route) => {
     setRoute(newRoute);
-    if (newRoute === 'home') {
+    if (newRoute === 'landing') {
       window.location.hash = '';
     } else {
       window.location.hash = newRoute;
     }
   };
 
-  // Route selector (home page)
+  // Landing / hero
+  if (route === 'landing') {
+    return (
+      <div className="hero">
+        <div className="hero-image-wrap">
+          <img
+            src={stage1Kitchen}
+            alt="Cozy hand-drawn kitchen with stove, sink, and dining table"
+          />
+          <div className="hero-content">
+            <h1 className="hero-title">Don&apos;s Kitchen</h1>
+            <p className="hero-tagline">A cozy interactive story</p>
+            <button
+              type="button"
+              className="hero-start-btn"
+              onClick={() => navigate('home')}
+            >
+              Start
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Scene selector (home page)
   if (route === 'home') {
     return (
       <div className="app-shell">
         <div className="app-shell-header">
           <div className="app-title-block">
-            <div className="app-title">Smile Diner</div>
+            <div className="app-title">Don&apos;s Kitchen</div>
             <div className="app-subtitle">Scene selector</div>
           </div>
         </div>
