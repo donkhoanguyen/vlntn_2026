@@ -1,0 +1,296 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { SmileEngine } from '../smile/SmileEngine';
+
+const REQUIRED_SMILE_TIME_SECONDS = 8;
+const DECAY_RATE = 0.4; // seconds of progress lost per second when not smiling
+const UPDATE_INTERVAL_MS = 100;
+
+type SceneState = 'idle' | 'charging' | 'completed';
+
+type CameraStatus = 'idle' | 'starting' | 'running' | 'denied' | 'error';
+
+export type SmileChargeResult = {
+  durationSeconds: number;
+  cumulativeScore: number;
+  viaFallback: boolean;
+};
+
+type SmileChargeSceneProps = {
+  onComplete: (result: SmileChargeResult) => void;
+};
+
+export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }) => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const engineRef = useRef<SmileEngine | null>(null);
+
+  // Refs to always have the latest smile + fallback values inside the timer loop.
+  const smileScoreRef = useRef(0);
+  const fallbackHeldRef = useRef(false);
+
+  const [sceneState, setSceneState] = useState<SceneState>('idle');
+  const [cameraStatus, setCameraStatus] = useState<CameraStatus>('idle');
+
+  const [progressSeconds, setProgressSeconds] = useState(0);
+  const [smileScore, setSmileScore] = useState(0);
+  const [hasStrongSmile, setHasStrongSmile] = useState(false);
+  const [noFace, setNoFace] = useState(false);
+
+  const [fallbackHeld, setFallbackHeld] = useState(false);
+  const [viaFallback, setViaFallback] = useState(false);
+
+  const accumulatedScoreRef = useRef(0);
+  const lastTickRef = useRef<number | null>(null);
+  const startedAtRef = useRef<number | null>(null);
+  const completedRef = useRef(false);
+
+  // Track whether fallback was used at all.
+  useEffect(() => {
+    // Keep the ref in sync for the timer loop.
+    fallbackHeldRef.current = fallbackHeld;
+
+    if (fallbackHeld) {
+      setViaFallback(true);
+    }
+  }, [fallbackHeld]);
+
+  // Initialize SmileEngine once the video element is available.
+  useEffect(() => {
+    if (!videoRef.current || engineRef.current || cameraStatus !== 'idle') return;
+
+    const videoEl = videoRef.current;
+    const engine = new SmileEngine({
+      videoElement: videoEl,
+      // For this scene we want to be generous about what counts as "strong".
+      strongThreshold: 0.6,
+      weakThreshold: 0.35,
+      onFrame: ({ smileScore: score }) => {
+        smileScoreRef.current = score;
+        setSmileScore(score);
+        setHasStrongSmile(engine.isSmilingStrong());
+        setNoFace(engine.hasNoFace());
+      },
+    });
+
+    engineRef.current = engine;
+    setCameraStatus('starting');
+
+    engine
+      .start()
+      .then(() => {
+        setCameraStatus('running');
+        setSceneState('charging');
+        startedAtRef.current = performance.now();
+      })
+      .catch((err: unknown) => {
+        // eslint-disable-next-line no-console
+        console.error('SmileChargeScene camera error', err);
+
+        if (
+          err instanceof DOMException &&
+          (err.name === 'NotAllowedError' || err.name === 'SecurityError')
+        ) {
+          setCameraStatus('denied');
+        } else {
+          setCameraStatus('error');
+        }
+
+        // Even without camera, allow progress through fallback button.
+        setSceneState('charging');
+        startedAtRef.current = performance.now();
+      });
+
+    return () => {
+      engine.stop();
+      engineRef.current = null;
+    };
+  }, [cameraStatus]);
+
+  // Progress integration loop (100ms tick).
+  useEffect(() => {
+    if (sceneState === 'completed') return;
+    // Always use refs inside the loop so we don't depend on re-renders.
+
+    const id = window.setInterval(() => {
+      const now = performance.now();
+      const last = lastTickRef.current ?? now;
+      const dt = (now - last) / 1000;
+      lastTickRef.current = now;
+
+      const currentSmile = smileScoreRef.current;
+      const effectiveStrongSmile = currentSmile > 0.35 || fallbackHeldRef.current;
+
+      setProgressSeconds((prev) => {
+        let next = prev;
+
+        if (effectiveStrongSmile) {
+          // Integrate above-threshold smile time.
+          next += dt;
+          accumulatedScoreRef.current += currentSmile * dt;
+        } else {
+          next -= DECAY_RATE * dt;
+        }
+
+        if (next < 0) next = 0;
+
+        if (next >= REQUIRED_SMILE_TIME_SECONDS) {
+          next = REQUIRED_SMILE_TIME_SECONDS;
+
+          if (!completedRef.current) {
+            completedRef.current = true;
+            setSceneState('completed');
+
+            const startedAt = startedAtRef.current ?? now;
+            const durationSeconds = (now - startedAt) / 1000;
+
+            onComplete({
+              durationSeconds,
+              cumulativeScore: accumulatedScoreRef.current,
+              viaFallback,
+            });
+          }
+        }
+
+        return next;
+      });
+    }, UPDATE_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [sceneState, onComplete, viaFallback]);
+
+  const progressRatio = Math.max(
+    0,
+    Math.min(1, progressSeconds / REQUIRED_SMILE_TIME_SECONDS),
+  );
+
+  const showCameraErrorOverlay =
+    cameraStatus === 'denied' || cameraStatus === 'error';
+
+  const statusText = (() => {
+    if (sceneState === 'completed') {
+      return 'You did it. This is exactly the warmth I wanted.';
+    }
+
+    if (showCameraErrorOverlay) {
+      return 'Camera is not available. You can still hold the button below to fill the jar.';
+    }
+
+    if (cameraStatus === 'starting' || cameraStatus === 'idle') {
+      return 'Connecting to camera and getting a feel for your neutral face…';
+    }
+
+    if (noFace) {
+      return "I can't see you clearly – move closer or face the camera.";
+    }
+
+    if (hasStrongSmile) {
+      return 'Hold that smile and charge up the warmth ingredient.';
+    }
+
+    if (progressRatio > 0.2) {
+      return "Don't let it leak away…";
+    }
+
+    return 'When you smile, this little jar fills with your warmth.';
+  })();
+
+  return (
+    <div className="app-shell">
+      <div className="app-shell-header">
+        <div className="app-title-block">
+          <div className="app-title">Warmth Ingredient</div>
+          <div className="app-subtitle">Smile to fill the jar</div>
+        </div>
+        <div className="app-pill">Scene · Smile charge</div>
+      </div>
+
+      <div className="app-shell-inner">
+        <div className="video-panel">
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              className="video-element"
+              autoPlay
+              playsInline
+              muted
+            />
+            {showCameraErrorOverlay && (
+              <div className="charge-camera-overlay">
+                <div className="charge-camera-overlay-body">
+                  <div className="charge-camera-overlay-title">Camera is shy</div>
+                  <div className="charge-camera-overlay-text">
+                    That&apos;s okay. You can still pour warmth in manually by holding the
+                    button below.
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="privacy-text">
+            Camera is processed locally in your browser. Nothing is uploaded.
+          </div>
+        </div>
+
+        <div className="score-panel charge-panel">
+          <div className="charge-jar-wrapper">
+            <div
+              className={
+                'charge-jar ' +
+                (sceneState === 'completed'
+                  ? 'charge-jar--completed'
+                  : smileScore > 0.35 || fallbackHeld
+                    ? 'charge-jar--smiling'
+                    : '')
+              }
+            >
+              <div className="charge-jar-glass">
+                <div
+                  className="charge-jar-fill"
+                  style={
+                    { '--fill-ratio': progressRatio } as React.CSSProperties
+                  }
+                />
+                <div className="charge-jar-highlight" />
+              </div>
+              <div className="charge-jar-label">Warmth</div>
+            </div>
+          </div>
+
+          <div className="charge-text-main">{statusText}</div>
+          <div className="charge-text-secondary">
+            Hold your smile:{' '}
+            {progressSeconds.toFixed(1)}s / {REQUIRED_SMILE_TIME_SECONDS}s
+          </div>
+          <div className="charge-debug">
+            smileScore={smileScore.toFixed(3)}
+          </div>
+
+          <div className="controls-row">
+            <button
+              type="button"
+              className="button button-secondary charge-fallback-button"
+              onPointerDown={() => setFallbackHeld(true)}
+              onPointerUp={() => setFallbackHeld(false)}
+              onPointerCancel={() => setFallbackHeld(false)}
+              onPointerLeave={() => setFallbackHeld(false)}
+              onMouseDown={() => setFallbackHeld(true)}
+              onMouseUp={() => setFallbackHeld(false)}
+              onMouseLeave={() => setFallbackHeld(false)}
+              onTouchStart={() => setFallbackHeld(true)}
+              onTouchEnd={() => setFallbackHeld(false)}
+            >
+              Hold to fill instead
+            </button>
+          </div>
+
+          <div className="charge-hint">
+            Camera being weird? This button fills the jar at the same pace while you hold
+            it, then slowly leaks when you let go.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+

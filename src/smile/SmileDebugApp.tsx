@@ -124,64 +124,83 @@ export const SmileDebugApp: React.FC = () => {
 
   return (
     <div className="app-shell">
-      <div className="video-panel">
-        <div className="video-wrapper">
-          <video ref={videoRef} className="video-element" autoPlay playsInline muted />
+      <div className="app-shell-header">
+        <div className="app-title-block">
+          <div className="app-title">Smile Engine Lab</div>
+          <div className="app-subtitle">Real-time warmth calibration</div>
         </div>
-        <div className="privacy-text">
-          Camera is processed locally in your browser. Nothing is uploaded.
-        </div>
-        <div className="controls-row">
-          <button
-            type="button"
-            className="button"
-            onClick={handleRestart}
-            disabled={status === 'starting'}
-          >
-            {status === 'running' ? 'Restart engine' : 'Retry camera'}
-          </button>
-        </div>
+        <div className="app-pill">v0.1 · Dev preview</div>
       </div>
 
-      <div className="score-panel">
-        <div className="score-header">SmileEngine debug</div>
-
-        <div className={['score-number', scoreClass].join(' ')}>
-          {ratio.toFixed(3)}
-        </div>
-
-        <div className="meter-track" style={{ '--ratio': ratio } as React.CSSProperties}>
-          <div className="meter-fill" />
-        </div>
-
-        <div className="flags">
-          <div
-            className={
-              'flag-pill ' + (isAny ? 'flag-pill--active' : '')
-            }
-          >
-            Weak smile
+      <div className="app-shell-inner">
+        <div className="video-panel">
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              className="video-element"
+              autoPlay
+              playsInline
+              muted
+            />
           </div>
-          <div
-            className={
-              'flag-pill ' + (isStrong ? 'flag-pill--active' : '')
-            }
-          >
-            Strong smile
+          <div className="privacy-text">
+            Camera is processed locally in your browser. Nothing is uploaded.
+          </div>
+          <div className="controls-row">
+            <button
+              type="button"
+              className="button"
+              onClick={handleRestart}
+              disabled={status === 'starting'}
+            >
+              {status === 'running' ? 'Restart engine' : 'Retry camera'}
+            </button>
           </div>
         </div>
 
-        <div
-          className={
-            'status-text ' +
-            (status === 'camera_denied' || status === 'camera_error'
-              ? 'status-text--error'
-              : noFace
-                ? 'status-text--hint'
-                : '')
-          }
-        >
-          {statusText}
+        <div className="score-panel">
+          <div className="score-header">Smilescore (smoothed)</div>
+
+          <div className={['score-number', scoreClass].join(' ')}>
+            {ratio.toFixed(3)}
+          </div>
+
+          <div
+            className="meter-track"
+            style={{ '--ratio': ratio } as React.CSSProperties}
+          >
+            <div className="meter-fill" />
+          </div>
+
+          <div className="flags">
+            <div
+              className={
+                'flag-pill ' + (isAny ? 'flag-pill--active' : '')
+              }
+            >
+              Weak smile
+            </div>
+            <div
+              className={
+                'flag-pill ' + (isStrong ? 'flag-pill--active' : '')
+              }
+            >
+              Strong smile
+            </div>
+          </div>
+
+          <div
+            className={
+              'status-text ' +
+              (status === 'camera_denied' || status === 'camera_error'
+                ? 'status-text--error'
+                : noFace
+                  ? 'status-text--hint'
+                  : '')
+            }
+          >
+            {statusText}
+          </div>
         </div>
       </div>
     </div>

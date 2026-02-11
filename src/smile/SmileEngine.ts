@@ -33,7 +33,7 @@ export class SmileEngine {
   private rafId: number | null = null;
 
   private smoothedSmile = 0;
-  private emaAlpha = 0.3;
+  private emaAlpha = 0.5; // Increased from 0.3 to respond faster to changes
 
   private isStrong = false;
   private isAny = false;
@@ -177,9 +177,12 @@ export class SmileEngine {
         this.handleNoFace(false);
       }
 
-      // EMA smoothing.
-      this.smoothedSmile =
-        this.emaAlpha * rawScore + (1 - this.emaAlpha) * this.smoothedSmile;
+      // EMA smoothing - but ensure we don't get stuck at 0
+      const newSmoothed = this.emaAlpha * rawScore + (1 - this.emaAlpha) * this.smoothedSmile;
+      
+      // If we detect a face but score is still near 0, give it a tiny boost
+      // This handles cases where the calculation might be too conservative
+      this.smoothedSmile = rawScore > 0.01 ? Math.max(newSmoothed, rawScore * 0.3) : newSmoothed;
 
       // Hysteresis for strong / any flags.
       this.updateHysteresisFlags();
@@ -195,10 +198,12 @@ export class SmileEngine {
   }
 
   /**
-   * Very simple heuristic to convert MediaPipe face output to smileScore in [0,1].
+   * Heuristic to convert MediaPipe face output to smileScore in [0,1].
    *
-   * NOTE: This is intentionally simple and may need tuning.
-   * It uses a few key landmarks to approximate mouth width + curvature.
+   * NOTE: For this project we bias heavily toward *seeing variation* rather than
+   * being scientifically correct. The original baseline‑subtraction logic was
+   * too conservative and often produced values ~0.0 for real smiles, so here we
+   * use a simpler, more generous mapping based on normalized mouth width / open.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private estimateSmileFromFace(face: any): number {
@@ -235,22 +240,47 @@ export class SmileEngine {
     const normWidth = boxWidth > 0 ? mouthWidth / boxWidth : mouthWidth;
     const normOpen = boxWidth > 0 ? mouthOpen / boxWidth : mouthOpen;
 
-    // Update neutral baseline when we're not obviously smiling.
-    this.updateBaseline(normWidth, normOpen);
+    // --- Ultra-generous heuristic for maximum sensitivity ---
+    //
+    // We use VERY low minimum thresholds so even subtle expressions register.
+    // The goal is to see ANY mouth movement, not just big grins.
+    //
+    // Normalized mouth width typically ranges from ~0.25 (closed/neutral) to ~0.75 (big smile)
+    // Normalized mouth open typically ranges from ~0.01 (closed) to ~0.25 (wide open)
+    //
+    // We map these to [0,1] using generous ranges that start from very low values.
 
-    // Convert to deltas above baseline so neutral tends toward 0.
-    const widthDelta = Math.max(0, normWidth - this.baselineWidth);
-    const openDelta = Math.max(0, normOpen - this.baselineOpen);
+    // Width component: map from 0.25 (neutral) to 0.65 (big smile)
+    // This means even a slight widening above neutral will register
+    const widthComponent = this.normalizeRange(normWidth, 0.25, 0.65);
+    
+    // Open component: map from 0.01 (closed) to 0.20 (open smile)
+    // Very sensitive to any opening
+    const openComponent = this.normalizeRange(normOpen, 0.01, 0.20);
 
-    // Heuristic ranges: how much wider/more open than baseline counts as "full smile".
-    const widthComponent = this.normalizeRange(widthDelta, 0.01, 0.15);
-    const openComponent = this.normalizeRange(openDelta, 0.005, 0.08);
+    // Favor width more (smiles are more about width than opening)
+    let score = 0.7 * widthComponent + 0.3 * openComponent;
 
-    // Slightly favor width (a wide mouth vs just open).
-    let score = 0.65 * widthComponent + 0.35 * openComponent;
+    // Boost the score slightly to make it more responsive
+    // This helps ensure even moderate expressions get decent scores
+    score = Math.pow(score, 0.8); // Slight curve to boost mid-range values
 
     // Clamp to [0,1].
     score = Math.max(0, Math.min(1, score));
+    
+    // Debug: log raw values occasionally to diagnose issues
+    if (Math.random() < 0.05) { // Log ~5% of frames to avoid spam
+      // eslint-disable-next-line no-console
+      console.log('[SmileEngine]', {
+        normWidth: normWidth.toFixed(3),
+        normOpen: normOpen.toFixed(3),
+        widthComp: widthComponent.toFixed(3),
+        openComp: openComponent.toFixed(3),
+        rawScore: score.toFixed(3),
+        boxWidth: boxWidth.toFixed(1),
+      });
+    }
+    
     return score;
   }
 
