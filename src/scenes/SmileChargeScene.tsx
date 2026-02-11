@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SmileEngine } from '../smile/SmileEngine';
 
-const REQUIRED_SMILE_TIME_SECONDS = 8;
-const DECAY_RATE = 0.4; // seconds of progress lost per second when not smiling
+const REQUIRED_SMILE_TIME_SECONDS = 5; // Reduced from 8 to make it easier
+const DECAY_RATE = 0.4; // seconds of progress lost per second when not smiling (unused now)
 const UPDATE_INTERVAL_MS = 100;
+const FILL_SPEED_MULTIPLIER = 1.5; // Fill 1.5x faster when smiling
 
 type SceneState = 'idle' | 'charging' | 'completed';
 
@@ -117,18 +118,20 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }
       lastTickRef.current = now;
 
       const currentSmile = smileScoreRef.current;
-      const effectiveStrongSmile = currentSmile > 0.35 || fallbackHeldRef.current;
+      // Lower threshold (0.2 instead of 0.35) + fill faster to make it easier
+      const effectiveStrongSmile = currentSmile > 0.2 || fallbackHeldRef.current;
 
       setProgressSeconds((prev) => {
         let next = prev;
 
         if (effectiveStrongSmile) {
           // Integrate above-threshold smile time.
-          next += dt;
-          accumulatedScoreRef.current += currentSmile * dt;
-        } else {
-          next -= DECAY_RATE * dt;
+          // Progress is cumulative - it only goes up, never down.
+          // Fill faster with multiplier to make it easier
+          next += dt * FILL_SPEED_MULTIPLIER;
+          accumulatedScoreRef.current += currentSmile * dt * FILL_SPEED_MULTIPLIER;
         }
+        // When not smiling, progress stays where it is (no decay)
 
         if (next < 0) next = 0;
 
@@ -239,7 +242,7 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }
                 'charge-jar ' +
                 (sceneState === 'completed'
                   ? 'charge-jar--completed'
-                  : smileScore > 0.35 || fallbackHeld
+                  : smileScore > 0.2 || fallbackHeld
                     ? 'charge-jar--smiling'
                     : '')
               }

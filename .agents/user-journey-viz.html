@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smile Diner - User Journey Map</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #ffeef7 0%, #fff3e0 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #d32f2f;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #c2185b;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #ffebee;
+            padding-bottom: 10px;
+        }
+        
+        .mermaid {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .notes {
+            background: #fff9c4;
+            border-left: 4px solid #fbc02d;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .notes h3 {
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+        
+        .timeline {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #90caf9;
+        }
+        
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        
+        .timeline-number {
+            background: #1976d2;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .timeline-content h4 {
+            color: #1565c0;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content p {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💕 Smile Diner - User Journey Map</h1>
+        <p class="subtitle">How she experiences your Valentine's Day surprise</p>
+        
+        <div class="section">
+            <h2>🎯 Complete Journey Flow</h2>
+            <div class="mermaid">
+flowchart TD
+    Start([She opens the link]) --> Title[Scene 0: Title Screen<br/>🎨 Hand-drawn title + character<br/>💭 'What is this cute thing?']
+    
+    Title -->|Tap to start| Kitchen[Scene 1: Empty Kitchen<br/>🏠 Cozy kitchen background<br/>💭 'This is a little world']
+    
+    Kitchen -->|Tap stove| StoveAnim[Stove wakes up<br/>'Missing something...']
+    StoveAnim -->|Continue| SmileStage{Scene 2: Smile Charge<br/>📷 Camera permission?}
+    
+    SmileStage -->|Allow| CameraMode[Camera Mode<br/>👤 Face preview<br/>💧 Jar filling with smile<br/>💭 'My smile powers this!']
+    SmileStage -->|Skip| ManualMode[Manual Mode<br/>🔘 Hold to charge button<br/>💧 Same jar visual]
+    
+    CameraMode -->|8-12s smiling| JarFull[✨ Jar full!<br/>Celebration animation]
+    ManualMode -->|Hold long enough| JarFull
+    
+    JarFull -->|Continue| PokerStage{Scene 3: Poker Face<br/>📷 Camera available?}
+    
+    PokerStage -->|Yes| PokerCamera[Camera Mode<br/>😐 Keep composure meter full<br/>🎭 Teasing prompts appear<br/>💭 'He knows I'll fail!']
+    PokerStage -->|No| PokerManual[Manual Mode<br/>🔘 'Don't tap' button<br/>🎭 Same teasing prompts]
+    
+    PokerCamera -->|Smiles detected| Penalty[💔 Meter drains<br/>😆 Goofy photo penalty]
+    Penalty -->|Keep trying| PokerCamera
+    PokerManual -->|Taps button| Penalty
+    Penalty -->|Keep trying| PokerManual
+    
+    PokerCamera -->|18-25s survived| Success[✅ Success or<br/>😊 Playful fail]
+    PokerManual -->|18-25s survived| Success
+    
+    Success -->|Continue| Assembly[Scene 4: Dish Assembly<br/>🍽️ Plate + ingredient tokens<br/>💭 'These are our vibes']
+    
+    Assembly -->|Tap ingredients| AddIng[Add Warmth<br/>Add Composure<br/>...]
+    AddIng -->|All added| DishComplete[✨ Dish complete!<br/>Visual upgrade]
+    
+    DishComplete -->|Continue| Final[Scene 5: Final Reveal<br/>💌 'Missing ingredient is YOU'<br/>💭 Emotional click]
+    
+    Final -->|Chase 'no' button| Playful[😄 Laughs]
+    Playful -->|Tap 'Yes'| End([💕 Valentine Accepted<br/>Warm closing])
+    
+    style Start fill:#ffebee
+    style Title fill:#fff3e0
+    style Kitchen fill:#fff3e0
+    style SmileStage fill:#e3f2fd
+    style CameraMode fill:#e8f5e9
+    style ManualMode fill:#e8f5e9
+    style JarFull fill:#fff9c4
+    style PokerStage fill:#f3e5f5
+    style PokerCamera fill:#fce4ec
+    style PokerManual fill:#fce4ec
+    style Penalty fill:#ffcdd2
+    style Success fill:#c8e6c9
+    style Assembly fill:#fff3e0
+    style Final fill:#ffebee
+    style End fill:#c8e6c9
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>💭 Emotional Arc</h2>
+            <div class="mermaid">
+graph LR
+    A[Curiosity<br/>'What is this?'] --> B[Immersion<br/>'This is our world']
+    B --> C[Playful Self-Consciousness<br/>'My smile powers this']
+    C --> D[Challenge Accepted<br/>'I can beat this']
+    D --> E[Reflection<br/>'These are our vibes']
+    E --> F[Emotional Peak<br/>'The missing piece is me']
+    
+    style A fill:#fff3e0
+    style B fill:#e3f2fd
+    style C fill:#e8f5e9
+    style D fill:#fce4ec
+    style E fill:#fff3e0
+    style F fill:#ffebee
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔄 Decision Points & Branches</h2>
+            <div class="mermaid">
+flowchart LR
+    A[Camera Permission] -->|Allow| B[Full camera experience<br/>Real-time smile detection]
+    A -->|Deny| C[Manual fallback<br/>Hold/tap interactions]
+    B --> D[Same emotional arc<br/>Same story beats]
+    C --> D
+    
+    E[Poker Face Challenge] -->|Wins<br/>Meter stays up| F['Stronger than I thought'<br/>✅ Success message]
+    E -->|Loses<br/>Smiles too much| G['Smile too powerful'<br/>😊 Playful fail]
+    F --> H[Continue to Assembly]
+    G --> H
+    
+    style A fill:#e3f2fd
+    style E fill:#f3e5f5
+    style D fill:#c8e6c9
+    style H fill:#c8e6c9
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>⏱️ Timeline & Key Moments</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-number">0</div>
+                    <div class="timeline-content">
+                        <h4>Arrival (0:00)</h4>
+                        <p><span class="emoji">👀</span> Opens link → Sees title screen → Low-stakes curiosity</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">1</div>
+                    <div class="timeline-content">
+                        <h4>Kitchen Discovery (0:10)</h4>
+                        <p><span class="emoji">🏠</span> Explores empty kitchen → Taps stove → "Missing something" mystery introduced</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">2</div>
+                    <div class="timeline-content">
+                        <h4>Smile Charge (0:30-1:30)</h4>
+                        <p><span class="emoji">📷</span> Camera permission → Smiles for 8-12 seconds → Jar fills → "My smile powers this!" realization</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">3</div>
+                    <div class="timeline-content">
+                        <h4>Poker Face Challenge (1:30-3:00)</h4>
+                        <p><span class="emoji">🎭</span> Tries not to smile → Teasing prompts appear → Cracks up → Meter drains → Either wins or playful fail</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">4</div>
+                    <div class="timeline-content">
+                        <h4>Assembly (3:00-3:30)</h4>
+                        <p><span class="emoji">🍽️</span> Drags/taps ingredients onto plate → "These are our vibes" reflection moment</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">5</div>
+                    <div class="timeline-content">
+                        <h4>Final Reveal (3:30-4:00)</h4>
+                        <p><span class="emoji">💌</span> "Missing ingredient is YOU" → Emotional click → Chases 'no' button → Taps 'Yes' → Warm closing</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notes">
+            <h3>📝 Key Design Principles</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>No dead ends:</strong> Every path (camera/no camera, win/lose) leads to the same emotional conclusion</li>
+                <li><strong>Clear feedback:</strong> Visual meters, animations, and text make her actions feel impactful</li>
+                <li><strong>Playful but not stressful:</strong> Challenges are fun, not frustrating</li>
+                <li><strong>Personal touch:</strong> Custom prompts/images make it feel made-for-her</li>
+                <li><strong>Mobile-first:</strong> Designed for phone interaction, casual setting</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
