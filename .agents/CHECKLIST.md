@@ -19,10 +19,10 @@
   - [x] Fallback “hold to fill” interaction
   - [x] Entry point `renderSmileChargeScene({ mountNode, onComplete })`
 
-- [ ] **PokerFaceScene**
-  - [ ] Composure meter with smile-based decay/regen
-  - [ ] Penalty trigger on smile threshold crossing
-  - [ ] Attack scheduling / rendering area
-  - [ ] Manual fallback mode when camera unavailable
-  - [ ] Entry point `renderPokerFaceScene({ mountNode, attacks, onComplete })`
+- [x] **PokerFaceScene**
+  - [x] Composure meter with smile-based decay/regen
+  - [x] Penalty trigger on smile threshold crossing
+  - [x] Attack scheduling / rendering area
+  - [x] Manual fallback mode when camera unavailable
+  - [x] Entry point `renderPokerFaceScene({ mountNode, attacks, onComplete })`
 

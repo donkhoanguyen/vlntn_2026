@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { SmileChargeScene } from './scenes/SmileChargeScene';
+import { PokerFaceScene } from './scenes/PokerFaceScene';
 import { SmileDebugApp } from './smile/SmileDebugApp';
 import stage1Kitchen from '../images/stage1_kitchen.png';
 import './styles.css';
 
-type Route = 'landing' | 'home' | 'smile-debug' | 'smile-charge';
+type Route = 'landing' | 'home' | 'smile-debug' | 'smile-charge' | 'poker-face';
 
 function App() {
   const [route, setRoute] = useState<Route>('landing');
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (hash === 'smile-debug' || hash === 'smile-charge') {
+    if (hash === 'smile-debug' || hash === 'smile-charge' || hash === 'poker-face') {
       setRoute(hash);
     } else if (hash === 'home') {
       setRoute('home');
@@ -22,7 +23,7 @@ function App() {
 
     const handleHashChange = () => {
       const newHash = window.location.hash.slice(1);
-      if (newHash === 'smile-debug' || newHash === 'smile-charge') {
+      if (newHash === 'smile-debug' || newHash === 'smile-charge' || newHash === 'poker-face') {
         setRoute(newHash);
       } else if (newHash === 'home') {
         setRoute('home');
@@ -111,6 +112,17 @@ function App() {
                 Full scene: charge ingredient by smiling
               </div>
             </button>
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={() => navigate('poker-face')}
+              style={{ width: '100%', padding: '16px' }}
+            >
+              Poker Face Scene
+              <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>
+                Don&apos;t smile while the UI tries to make you
+              </div>
+            </button>
             <div
               style={{
                 marginTop: '24px',
@@ -135,6 +147,13 @@ function App() {
                 style={{ color: 'var(--accent)', textDecoration: 'none' }}
               >
                 #smile-charge
+              </a>
+              {' · '}
+              <a
+                href="#poker-face"
+                style={{ color: 'var(--accent)', textDecoration: 'none' }}
+              >
+                #poker-face
               </a>
             </div>
           </div>
@@ -199,6 +218,43 @@ function App() {
               )}s\nCumulative score: ${result.cumulativeScore.toFixed(
                 2,
               )}\nVia fallback: ${result.viaFallback}`,
+            );
+          }}
+        />
+      </>
+    );
+  }
+
+  // Poker Face Scene
+  if (route === 'poker-face') {
+    return (
+      <>
+        <div
+          style={{
+            position: 'fixed',
+            top: '12px',
+            left: '12px',
+            zIndex: 1000,
+          }}
+        >
+          <button
+            type="button"
+            className="button button-secondary"
+            onClick={() => navigate('home')}
+            style={{ fontSize: '11px', padding: '6px 12px' }}
+          >
+            ← Back
+          </button>
+        </div>
+        <PokerFaceScene
+          onComplete={(result) => {
+            console.log('PokerFace complete', result);
+            alert(
+              `Done!\nSurvived: ${result.survived}\nDuration: ${result.durationSeconds.toFixed(
+                1,
+              )}s\nMin composure: ${(result.minComposureReached * 100).toFixed(
+                0,
+              )}%`,
             );
           }}
         />
