@@ -268,13 +268,6 @@ body {
   border-bottom: 1px solid var(--tan);
 }
 
-.app-shell-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
 .app-shell-header .app-back-btn {
   pointer-events: auto;
 }

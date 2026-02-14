@@ -292,15 +292,14 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
     return (
       <div className="app-shell">
         <div className="app-shell-header">
-          <div className="app-shell-header-left">
-            <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+          {onBack && (
+            <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
               Back to home
             </button>
-            <div className="app-pill brand">Don Kitchen</div>
-          </div>
+          )}
           <div className="app-title-block">
-            <div className="app-title">We Pay Attention to Every Detail.</div>
-            <div className="app-subtitle">Meticulous When It Matters</div>
+            <div className="app-title"><span className="brand">Don Kitchen</span></div>
+            <div className="app-subtitle">Anniversary</div>
           </div>
         </div>
         <div className="app-shell-inner scene-message-block">
@@ -325,15 +324,14 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
   return (
     <div className="app-shell">
       <div className="app-shell-header">
-        <div className="app-shell-header-left">
-          <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+        {onBack && (
+          <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
             Back to home
           </button>
-          <div className="app-pill brand">Don Kitchen</div>
-        </div>
+        )}
         <div className="app-title-block">
-          <div className="app-title">We Pay Attention to Every Detail.</div>
-          <div className="app-subtitle">Meticulous When It Matters — because the details are what make the difference.</div>
+          <div className="app-title"><span className="brand">Don Kitchen</span></div>
+          <div className="app-subtitle">Anniversary</div>
         </div>
       </div>
 

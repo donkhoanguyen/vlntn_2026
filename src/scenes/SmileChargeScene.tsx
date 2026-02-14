@@ -206,15 +206,14 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
     return (
       <div className="app-shell">
         <div className="app-shell-header">
-          <div className="app-shell-header-left">
-            <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+          {onBack && (
+            <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
               Back to home
             </button>
-            <div className="app-pill brand">Don Kitchen</div>
-          </div>
+          )}
           <div className="app-title-block">
-            <div className="app-title">We Cook with Love. And a Little Fun.</div>
-            <div className="app-subtitle">Food with Love &amp; Fun</div>
+            <div className="app-title"><span className="brand">Don Kitchen</span></div>
+            <div className="app-subtitle">Anniversary</div>
           </div>
         </div>
         <div className="app-shell-inner scene-message-block">
@@ -245,15 +244,14 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
   return (
     <div className="app-shell">
       <div className="app-shell-header">
-        <div className="app-shell-header-left">
-          <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+        {onBack && (
+          <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
             Back to home
           </button>
-          <div className="app-pill brand">Don Kitchen</div>
-        </div>
+        )}
         <div className="app-title-block">
-          <div className="app-title">We Cook with Love. And a Little Fun.</div>
-          <div className="app-subtitle">Food with Love &amp; Fun — because when food is made with love, you can taste it.</div>
+          <div className="app-title"><span className="brand">Don Kitchen</span></div>
+          <div className="app-subtitle">Anniversary</div>
         </div>
       </div>
 

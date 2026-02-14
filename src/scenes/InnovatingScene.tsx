@@ -16,16 +16,14 @@ export const InnovatingScene: React.FC<{ onBack: () => void }> = ({ onBack }) =>
     return (
       <div className="app-shell">
         <div className="app-shell-header">
-          <div className="app-shell-header-left">
-            <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
-              Back to home
-            </button>
-            <div className="app-pill brand">Don Kitchen</div>
-          </div>
+          <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
+            ← Back
+          </button>
           <div className="app-title-block">
             <div className="app-title">We Never Stop Improving.</div>
             <div className="app-subtitle">Always Innovating</div>
           </div>
+          <div className="app-pill brand">Don Kitchen</div>
         </div>
         <div className="app-shell-inner scene-message-block">
           <div className="scene-message-body">
@@ -47,12 +45,9 @@ export const InnovatingScene: React.FC<{ onBack: () => void }> = ({ onBack }) =>
     return (
       <div className="app-shell">
         <div className="app-shell-header">
-          <div className="app-shell-header-left">
-            <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
-              Back to home
-            </button>
-            <div className="app-pill brand">Don Kitchen</div>
-          </div>
+          <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
+            ← Back
+          </button>
           <div className="app-title-block">
             <div className="app-title brand">Don Kitchen</div>
             <div className="app-subtitle">Always Innovating</div>
@@ -99,16 +94,14 @@ export const InnovatingScene: React.FC<{ onBack: () => void }> = ({ onBack }) =>
   return (
     <div className="app-shell">
       <div className="app-shell-header">
-        <div className="app-shell-header-left">
-          <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
-            Back to home
-          </button>
-          <div className="app-pill brand">Don Kitchen</div>
-        </div>
+        <button type="button" className="button button-secondary app-back-btn" onClick={onBack}>
+          ← Back
+        </button>
         <div className="app-title-block">
           <div className="app-title">We Never Stop Improving.</div>
           <div className="app-subtitle">Always Innovating</div>
         </div>
+        <div className="app-pill brand">Don Kitchen</div>
       </div>
       <div className="app-shell-inner innovating-form-wrap">
         <form
