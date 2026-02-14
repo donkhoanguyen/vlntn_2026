@@ -365,6 +365,36 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
         </div>
 
         <div className="score-panel poker-panel">
+          {/* Chopping animation: knife on cutting board – steady when composed, shaky when not */}
+          <div
+            className={
+              'poker-chopping-stage ' +
+              (sceneState === 'active' ? 'poker-chopping-stage--active ' : '') +
+              (sceneState === 'active' && composure < 0.45 ? 'poker-chopping-stage--shaky ' : '') +
+              (sceneState === 'success' ? 'poker-chopping-stage--done ' : '') +
+              (sceneState === 'fail-but-continue' ? 'poker-chopping-stage--slipped ' : '')
+            }
+            aria-hidden
+          >
+            <div className="poker-cutting-board">
+              <div className="poker-veggies">
+                <div className="poker-veggie poker-veggie--carrot">
+                  <span className="poker-veggie-slice" />
+                  <span className="poker-veggie-slice" />
+                  <span className="poker-veggie-slice" />
+                </div>
+                <div className="poker-veggie poker-veggie--cucumber">
+                  <span className="poker-veggie-slice" />
+                  <span className="poker-veggie-slice" />
+                </div>
+              </div>
+            </div>
+            <div className="poker-chopping-knife">
+              <span className="poker-knife-handle" />
+              <span className="poker-knife-blade" />
+            </div>
+          </div>
+
           <div className="poker-composure-section">
             <div className="poker-composure-label">EVERY DETAIL MATTERS</div>
             <div className="meter-track poker-meter">
@@ -396,7 +426,7 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
           <div className="charge-text-main">{statusText}</div>
 
           <div className="charge-debug">
-            smileScore={smileScore.toFixed(3)} (threshold 0.2)
+            smileScore={smileScore.toFixed(3)} (threshold {SMILE_THRESHOLD})
           </div>
 
           {(sceneState === 'success' || sceneState === 'fail-but-continue') && (

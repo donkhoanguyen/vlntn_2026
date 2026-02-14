@@ -180,16 +180,7 @@ function App() {
     return (
       <SmileChargeScene
         onBack={() => navigate('home')}
-        onComplete={(result) => {
-            console.log('SmileCharge complete', result);
-            alert(
-              `Done!\nDuration: ${result.durationSeconds.toFixed(
-                1,
-              )}s\nCumulative score: ${result.cumulativeScore.toFixed(
-                2,
-              )}\nVia fallback: ${result.viaFallback}`,
-            );
-          }}
+        onComplete={() => navigate('home')}
       />
     );
   }
@@ -199,16 +190,7 @@ function App() {
     return (
       <PokerFaceScene
         onBack={() => navigate('home')}
-        onComplete={(result) => {
-            console.log('PokerFace complete', result);
-            alert(
-              `Done!\nSurvived: ${result.survived}\nDuration: ${result.durationSeconds.toFixed(
-                1,
-              )}s\nMin composure: ${(result.minComposureReached * 100).toFixed(
-                0,
-              )}%`,
-            );
-          }}
+        onComplete={() => navigate('home')}
       />
     );
   }

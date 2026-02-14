@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SmileEngine } from '../smile/SmileEngine';
 
-const REQUIRED_SMILE_TIME_SECONDS = 5; // Reduced from 8 to make it easier
-const DECAY_RATE = 0.4; // seconds of progress lost per second when not smiling (unused now)
+const REQUIRED_SMILE_TIME_SECONDS = 5;
+const SEASONING_STEPS = 3;
+const TIME_PER_SEASONING = REQUIRED_SMILE_TIME_SECONDS / SEASONING_STEPS;
 const UPDATE_INTERVAL_MS = 100;
-const FILL_SPEED_MULTIPLIER = 1.5; // Fill 1.5x faster when smiling
+const FILL_SPEED_MULTIPLIER = 1;
+/** Smile must be at least this strong to count (0–1). */
+const SMILE_THRESHOLD = 0.32;
 
 type SceneState = 'idle' | 'charging' | 'completed';
 
@@ -64,9 +67,8 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
     const videoEl = videoRef.current;
     const engine = new SmileEngine({
       videoElement: videoEl,
-      // For this scene we want to be generous about what counts as "strong".
-      strongThreshold: 0.6,
-      weakThreshold: 0.35,
+      strongThreshold: 0.5,
+      weakThreshold: 0.32,
       onFrame: ({ smileScore: score }) => {
         smileScoreRef.current = score;
         setSmileScore(score);
@@ -121,8 +123,7 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
       lastTickRef.current = now;
 
       const currentSmile = smileScoreRef.current;
-      // Lower threshold (0.2 instead of 0.35) + fill faster to make it easier
-      const effectiveStrongSmile = currentSmile > 0.2 || fallbackHeldRef.current;
+      const effectiveStrongSmile = currentSmile >= SMILE_THRESHOLD || fallbackHeldRef.current;
 
       setProgressSeconds((prev) => {
         let next = prev;
@@ -170,6 +171,19 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
     Math.min(1, progressSeconds / REQUIRED_SMILE_TIME_SECONDS),
   );
 
+  // Per-step fill for "seasoning 3 times": step 0, 1, 2 each fill in sequence
+  const seasoningFillRatios: [number, number, number] = [0, 0, 0];
+  for (let i = 0; i < SEASONING_STEPS; i++) {
+    const stepStart = i * TIME_PER_SEASONING;
+    const stepEnd = (i + 1) * TIME_PER_SEASONING;
+    if (progressSeconds >= stepEnd) {
+      seasoningFillRatios[i] = 1;
+    } else if (progressSeconds > stepStart) {
+      seasoningFillRatios[i] = (progressSeconds - stepStart) / TIME_PER_SEASONING;
+    }
+  }
+  const completedSeasoningCount = seasoningFillRatios.filter((r) => r >= 1).length;
+
   const showCameraErrorOverlay =
     cameraStatus === 'denied' || cameraStatus === 'error';
 
@@ -179,7 +193,7 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
     }
 
     if (showCameraErrorOverlay) {
-      return 'Camera is not available. You can still hold the button below to fill the jar.';
+      return 'Camera is not available. You can still hold the button below to add each pinch of seasoning.';
     }
 
     if (cameraStatus === 'starting' || cameraStatus === 'idle') {
@@ -191,14 +205,17 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
     }
 
     if (hasStrongSmile) {
-      return 'Hold that smile — cooking with energy, warmth, and love.';
+      const pinch = completedSeasoningCount + 1;
+      return pinch <= SEASONING_STEPS
+        ? `Hold that smile — adding pinch ${pinch} of ${SEASONING_STEPS}.`
+        : 'Hold that smile — cooking with energy, warmth, and love.';
     }
 
     if (progressRatio > 0.2) {
       return "Don't let it leak away…";
     }
 
-    return "When it's made with fun, you can feel it. Smile to fill the jar.";
+    return "When it's made with fun, you can feel it. Smile to add each pinch of seasoning.";
   })();
 
   // Message section first (speech.md §2)
@@ -283,28 +300,34 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
         </div>
 
         <div className="score-panel charge-panel">
-          <div className="charge-jar-wrapper">
-            <div
-              className={
-                'charge-jar ' +
-                (sceneState === 'completed'
-                  ? 'charge-jar--completed'
-                  : smileScore > 0.2 || fallbackHeld
-                    ? 'charge-jar--smiling'
-                    : '')
-              }
-            >
-              <div className="charge-jar-glass">
-                <div
-                  className="charge-jar-fill"
-                  style={
-                    { '--fill-ratio': progressRatio } as React.CSSProperties
-                  }
-                />
-                <div className="charge-jar-highlight" />
+          <div className="charge-seasoning-row" aria-label="Seasoning: 3 pinches of love and fun">
+            {[0, 1, 2].map((stepIndex) => (
+              <div
+                key={stepIndex}
+                className={
+                  'charge-pinch ' +
+                  (sceneState === 'completed'
+                    ? 'charge-pinch--completed'
+                    : smileScore >= SMILE_THRESHOLD || fallbackHeld
+                      ? 'charge-pinch--active'
+                      : '') +
+                  (seasoningFillRatios[stepIndex] >= 1 ? ' charge-pinch--done' : '')
+                }
+              >
+                <div className="charge-pinch-bowl">
+                  <div
+                    className="charge-pinch-fill"
+                    style={
+                      { '--fill-ratio': seasoningFillRatios[stepIndex] } as React.CSSProperties
+                    }
+                  />
+                </div>
+                <span className="charge-pinch-label">{stepIndex + 1}</span>
               </div>
-              <div className="charge-jar-label">Love &amp; Fun</div>
-            </div>
+            ))}
+          </div>
+          <div className="charge-seasoning-caption">
+            Pinch {Math.min(completedSeasoningCount + 1, SEASONING_STEPS)} of {SEASONING_STEPS}
           </div>
 
           <div className="charge-text-main">{statusText}</div>
@@ -335,8 +358,8 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, 
           </div>
 
           <div className="charge-hint">
-            Camera being weird? This button fills the jar at the same pace while you hold
-            it, then slowly leaks when you let go.
+            Camera being weird? Hold the button to add each pinch of seasoning at the same
+            pace.
           </div>
         </div>
       </div>
