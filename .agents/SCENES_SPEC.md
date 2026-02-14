@@ -1,8 +1,8 @@
-## Smile Diner – Visual & Interaction Spec
+## Don Kitchen – Visual & Interaction Spec (Mai as Cherished Customer)
 
-This document defines the **visual modules** and **scenes** for the Valentine project so another Cursor agent can safely implement the frontend while the aesthetics are being refined separately.
+This document defines the **visual modules** and **scenes** for the Don Kitchen experience so another Cursor agent can safely implement the frontend while the aesthetics are being refined separately.
 
-The core idea: she is in a cozy kitchen, gradually **making a dish**. The dish is “good but missing one central ingredient” – which turns out to be **her** (her smile, presence, and choices).
+The core idea: **Mai** is welcomed as the **cherished customer** of Don Kitchen. Through a fully immersive, game-like experience, we show Mai the **qualities** that make Don Kitchen special (Warmth, Composure, etc.). The experience culminates in the ask: **Will Mai continue to be our finest, most lovable customer of Don Kitchen?**
 
 Implementation is expected in **React + TypeScript** (Vite or similar), but the contracts below are UI‑framework agnostic.
 
@@ -30,23 +30,22 @@ Implementation is expected in **React + TypeScript** (Vite or similar), but the 
    - One interactive hotspot: the **stove area**.
    - Tapping the stove triggers:
      - A short animation (stove “wakes up”, tiny steam/heat).
-     - A caption/narration line: “This kitchen has been quiet for a while… It’s missing something.”
+     - A caption/narration line: “We’ve been waiting for you, Mai…”
    - When animation completes → mark scene as complete and show a “continue” button → **Scene 2**.
 
-3. **Scene 2 – Smile Charge Stage (Camera ON)**
-   - Uses the camera to **measure how big and how long she smiles**.
-   - Visual metaphor: she is **charging a key ingredient** (e.g., a glowing jar of “warmth”).
+3. **Scene 2 – Smile Charge · Warmth (Camera ON)**
+   - Uses the camera to **measure how big and how long Mai smiles**.
+   - Visual metaphor: **Don Kitchen's warmth** – a glowing jar that fills with her smile (we meet you with warmth).
 
-4. **Scene 3 – Poker‑Face Stage (Camera ON)**
-   - Uses the camera to **detect when she smiles**, but here smiling causes **funny penalties**.
-   - Visual metaphor: she must keep a **serious face** while the UI constantly tries to make her smile.
+4. **Scene 3 – Poker‑Face · Composure (Camera ON)**
+   - Uses the camera to **detect when Mai smiles**; smiling causes **playful penalties**.
+   - Visual metaphor: **Don Kitchen's composure** – we keep our cool (and love when she can't).
 
-5. **Scene 4 – Dish Assembly**
-   - A more traditional interactive scene where she **assembles the dish** using the ingredients unlocked by previous stages.
+5. **Scene 4 – Qualities Assembly**
+   - A more traditional interactive scene where Mai **assembles the qualities** unlocked by previous stages (Warmth, Composure, etc.) – what Don Kitchen brings to her as our customer.
 
 6. **Scene 5 – Final Reveal**
-   - The dish is shown as “good but missing something”.
-   - Final beat reveals that the missing ingredient is **her**; transitions into the Valentine ask.
+   - We've shown our qualities; now the ask: **Will Mai continue to be our finest, most lovable customer of Don Kitchen?** Two buttons: **Yes** (primary), **no** (playfully dodges).
 
 This spec primarily details **Scenes 2 & 3** as separate reusable visual modules so another agent can focus on building them.
 
@@ -104,7 +103,7 @@ No camera/mic here; this is a safe, static intro.
 
 **Visual Layout**
 - Top: small preview of her camera (`<video>` element, 4:3 or square), rounded corners.
-- Middle: **ingredient card**:
+- Middle: **quality card** (e.g. "Warmth"):
   - Illustration (user‑supplied asset) of an empty jar or orb.
   - A **vertical or circular progress bar** around/under the jar.
 - Bottom: instruction text + button row (retry/continue).
@@ -129,7 +128,7 @@ No camera/mic here; this is a safe, static intro.
   - When below threshold → progress slightly decays (e.g., 10–20% of fill rate) so she has to re‑engage but doesn’t lose everything instantly.
   - On reaching 100%:
     - Lock the meter.
-    - Trigger a **short celebratory animation** on the ingredient (glow, scale, particles).
+    - Trigger a **short celebratory animation** on the jar (glow, scale, particles).
     - Call `onComplete('poker-stage')` after a delay.
 
 **Camera Handling**
@@ -143,9 +142,9 @@ No camera/mic here; this is a safe, static intro.
 
 ```ts
 interface SmileStageProps {
-  onComplete: () => void;              // called when ingredient is fully charged
+  onComplete: () => void;              // called when Warmth jar is fully charged
   onBack?: () => void;                 // optional back navigation
-  ingredientName?: string;             // e.g. \"Warmth\"
+  qualityName?: string;                // e.g. "Warmth"
   targetSeconds?: number;              // override REQUIRED_SMILE_TIME
 }
 ```
@@ -156,10 +155,10 @@ Implementation detail (for another agent):
 
 ---
 
-## Module 4 – Poker‑Face Stage (Camera ON)
+## Module 4 – Poker‑Face Stage · Composure (Camera ON)
 
 **Goal**
-- Invert the mechanic: she **must not smile** while the UI constantly tries to make her smile.
+- Invert the mechanic: Mai **must not smile** while the UI constantly tries to make her smile.
 - Smiling triggers playful “penalties” (e.g., popping up her goofy photos).
 
 **Visual Layout**
@@ -213,7 +212,7 @@ Implementation detail (for another agent):
 
 - Completion rules:
   - If timer reaches `STAGE_DURATION` **and** meter > `MIN_METER_TO_PASS`:
-    - Show success text: “Okay, you’re stronger than I thought.”
+    - Show success text: “Okay, you’re stronger than we thought.”
     - Call `onComplete('assembly')`.
   - Else:
     - Show playful text: “Your smile is too powerful to contain anyway.”
@@ -236,26 +235,26 @@ interface PokerFaceStageProps {
 
 ---
 
-## Module 5 – Dish Assembly (Outline Only)
+## Module 5 – Qualities Assembly (Outline Only)
 
 Another agent can implement this later; high‑level specification:
 
-- Show a **plate** in the center.
-- Below it, show **ingredient tokens/cards**:
+- Show a **plate** or central visual in the center.
+- Below it, show **quality tokens/cards**:
   - One for each successful stage (e.g., “Warmth” from Smile Stage, “Composure” from Poker‑Face Stage).
-- She drags or taps ingredients to assemble the final dish.
+- Mai drags or taps qualities to assemble what Don Kitchen brings to her.
 - When all required tokens are placed:
-  - Plate artwork swaps to a “completed dish”.
+  - Visual upgrades to “complete”.
   - Trigger transition to **Final Reveal**.
 
 ---
 
 ## Module 6 – Final Reveal (Outline Only)
 
-- Show the finished dish but overlay text like: “It’s good, but something is still missing…”
-- Fade in your character holding a letter.
-- Show the final message and Valentine question with soft animation.
-- Two buttons: `Yes` (primary), `no` (playfully dodges).
+- Recap the qualities we’ve shown (Warmth, Composure, etc.).
+- Show the final message and the ask: **Will Mai continue to be our finest, most lovable customer of Don Kitchen?**
+- Soft animation; two buttons: **Yes** (primary), **no** (playfully dodges).
+- On Yes: warm closing affirming Mai as our finest, most lovable customer.
 
 ---
 

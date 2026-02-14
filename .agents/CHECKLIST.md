@@ -1,5 +1,7 @@
 ## Build Checklist
 
+**Context:** Don Kitchen – fully immersive experience for **Mai** as our cherished customer. We show Don Kitchen's qualities (Warmth, Composure, etc.) through game-like scenes. Final ask: **Will Mai continue to be our finest, most lovable customer of Don Kitchen?**
+
 - [x] **SmileEngine core**
   - [x] Camera stream management (`getUserMedia`, front-facing when available)
   - [x] In-browser face landmarks model (`@tensorflow-models/face-landmarks-detection`)

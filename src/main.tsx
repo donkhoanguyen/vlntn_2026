@@ -2,18 +2,19 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { SmileChargeScene } from './scenes/SmileChargeScene';
 import { PokerFaceScene } from './scenes/PokerFaceScene';
+import { InnovatingScene } from './scenes/InnovatingScene';
 import { SmileDebugApp } from './smile/SmileDebugApp';
 import stage1Kitchen from '../images/stage1_kitchen.png';
 import './styles.css';
 
-type Route = 'landing' | 'home' | 'smile-debug' | 'smile-charge' | 'poker-face';
+type Route = 'landing' | 'home' | 'smile-debug' | 'smile-charge' | 'poker-face' | 'always-innovating';
 
 function App() {
   const [route, setRoute] = useState<Route>('landing');
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    if (hash === 'smile-debug' || hash === 'smile-charge' || hash === 'poker-face') {
+    if (hash === 'smile-debug' || hash === 'smile-charge' || hash === 'poker-face' || hash === 'always-innovating') {
       setRoute(hash);
     } else if (hash === 'home') {
       setRoute('home');
@@ -23,7 +24,7 @@ function App() {
 
     const handleHashChange = () => {
       const newHash = window.location.hash.slice(1);
-      if (newHash === 'smile-debug' || newHash === 'smile-charge' || newHash === 'poker-face') {
+      if (newHash === 'smile-debug' || newHash === 'smile-charge' || newHash === 'poker-face' || newHash === 'always-innovating') {
         setRoute(newHash);
       } else if (newHash === 'home') {
         setRoute('home');
@@ -45,7 +46,7 @@ function App() {
     }
   };
 
-  // Landing / hero
+  // Landing – script from speech.md §1 (no added info; rest is on home)
   if (route === 'landing') {
     return (
       <div className="hero">
@@ -55,8 +56,8 @@ function App() {
             alt="Cozy hand-drawn kitchen with stove, sink, and dining table"
           />
           <div className="hero-content">
-            <h1 className="hero-title">Don&apos;s Kitchen</h1>
-            <p className="hero-tagline">A cozy interactive story</p>
+            <p className="hero-from">Thank you from</p>
+            <h1 className="hero-brand">Don Kitchen</h1>
             <button
               type="button"
               className="hero-start-btn"
@@ -70,46 +71,51 @@ function App() {
     );
   }
 
-  // Scene selector (home page)
+  // Home – full landing script from speech.md §1 (headline + body + 3 qualities + closing)
   if (route === 'home') {
     return (
       <div className="app-shell">
         <div className="app-shell-header">
+          <button
+            type="button"
+            className="button button-secondary app-back-btn"
+            onClick={() => navigate('landing')}
+          >
+            ← Back
+          </button>
           <div className="app-title-block">
-            <div className="app-title">Don&apos;s Kitchen</div>
-            <div className="app-subtitle">Scene selector</div>
+            <div className="app-title"><span className="brand">Don Kitchen</span></div>
+            <div className="app-subtitle">Anniversary</div>
           </div>
         </div>
-        <div className="app-shell-inner" style={{ padding: '40px 20px' }}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-              maxWidth: '400px',
-              margin: '0 auto',
-            }}
-          >
-            <button
-              type="button"
-              className="button"
-              onClick={() => navigate('smile-debug')}
-              style={{ width: '100%', padding: '16px' }}
-            >
-              Smile Engine Lab
-              <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>
-                Test camera + smile detection
-              </div>
-            </button>
+        <div className="app-shell-inner app-home-content">
+          <h2 className="home-headline">Tribute to Mai Pham — from the team at <span className="brand">Don Kitchen</span></h2>
+          <div className="home-body">
+            <p>Hi Mai,</p>
+            <p>
+              We want to begin with one simple message: <strong>Thank you!</strong>
+            </p>
+            <p>
+              On this third valentine day since meeting you, <span className="brand">Don Kitchen</span> would like to extend our most sincere gratitude. We of course are not offended that you have been choosing other restaurants and kitchens for your filling—no, even though that was very nice of you to keep us hanging.
+            </p>
+            <p>
+              With that being said, your love and support have helped us grow, improve, and keep doing what we truly enjoy—making food that Mai Pham can enjoy.
+            </p>
+            <p>
+              To celebrate this anniversary, we wanted to share the values that have shaped <span className="brand">Don Kitchen </span>  from the very beginning. These are the three qualities we&apos;ve always stood for, and the ones we promise to keep carrying forward.
+            </p>
+          </div>
+          {/* <p className="home-cta-intro">Take a quick journey through what makes <span className="brand">Don Kitchen</span>… <span className="brand">Don Kitchen</span>.</p> */}
+          <div className="app-home-buttons">
             <button
               type="button"
               className="button button-secondary"
               onClick={() => navigate('smile-charge')}
               style={{ width: '100%', padding: '16px' }}
             >
-              Smile Charge Scene
+              <strong>Food with Love &amp; Fun</strong>
               <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>
-                Full scene: charge ingredient by smiling
+                Because great food should always feel joyful.
               </div>
             </button>
             <button
@@ -118,45 +124,26 @@ function App() {
               onClick={() => navigate('poker-face')}
               style={{ width: '100%', padding: '16px' }}
             >
-              Poker Face Scene
+              <strong>Meticulous When It Matters</strong>
               <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>
-                Don&apos;t smile while the UI tries to make you
+                Because the details are what make the difference.
               </div>
             </button>
-            <div
-              style={{
-                marginTop: '24px',
-                padding: '12px',
-                background: 'rgba(148, 163, 184, 0.1)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                color: 'var(--text-muted)',
-              }}
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={() => navigate('always-innovating')}
+              style={{ width: '100%', padding: '16px' }}
             >
-              <strong>Quick links:</strong>
-              <br />
-              <a
-                href="#smile-debug"
-                style={{ color: 'var(--accent)', textDecoration: 'none' }}
-              >
-                #smile-debug
-              </a>
-              {' · '}
-              <a
-                href="#smile-charge"
-                style={{ color: 'var(--accent)', textDecoration: 'none' }}
-              >
-                #smile-charge
-              </a>
-              {' · '}
-              <a
-                href="#poker-face"
-                style={{ color: 'var(--accent)', textDecoration: 'none' }}
-              >
-                #poker-face
-              </a>
-            </div>
+              <strong>Always Innovating</strong>
+              <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>
+                Because we never stop improving for you.
+              </div>
+            </button>
           </div>
+          {/* <blockquote className="home-closing">
+            Thank you for being part of our story—now and always.
+          </blockquote> */}
         </div>
       </div>
     );
@@ -188,29 +175,12 @@ function App() {
     );
   }
 
-  // Smile Charge Scene
+  // Smile Charge Scene (Food with Love & Fun)
   if (route === 'smile-charge') {
     return (
-      <>
-        <div
-          style={{
-            position: 'fixed',
-            top: '12px',
-            left: '12px',
-            zIndex: 1000,
-          }}
-        >
-          <button
-            type="button"
-            className="button button-secondary"
-            onClick={() => navigate('home')}
-            style={{ fontSize: '11px', padding: '6px 12px' }}
-          >
-            ← Back
-          </button>
-        </div>
-        <SmileChargeScene
-          onComplete={(result) => {
+      <SmileChargeScene
+        onBack={() => navigate('home')}
+        onComplete={(result) => {
             console.log('SmileCharge complete', result);
             alert(
               `Done!\nDuration: ${result.durationSeconds.toFixed(
@@ -220,34 +190,16 @@ function App() {
               )}\nVia fallback: ${result.viaFallback}`,
             );
           }}
-        />
-      </>
+      />
     );
   }
 
-  // Poker Face Scene
+  // Poker Face Scene (Meticulous When It Matters)
   if (route === 'poker-face') {
     return (
-      <>
-        <div
-          style={{
-            position: 'fixed',
-            top: '12px',
-            left: '12px',
-            zIndex: 1000,
-          }}
-        >
-          <button
-            type="button"
-            className="button button-secondary"
-            onClick={() => navigate('home')}
-            style={{ fontSize: '11px', padding: '6px 12px' }}
-          >
-            ← Back
-          </button>
-        </div>
-        <PokerFaceScene
-          onComplete={(result) => {
+      <PokerFaceScene
+        onBack={() => navigate('home')}
+        onComplete={(result) => {
             console.log('PokerFace complete', result);
             alert(
               `Done!\nSurvived: ${result.survived}\nDuration: ${result.durationSeconds.toFixed(
@@ -257,9 +209,13 @@ function App() {
               )}%`,
             );
           }}
-        />
-      </>
+      />
     );
+  }
+
+  // Always Innovating (questionnaire)
+  if (route === 'always-innovating') {
+    return <InnovatingScene onBack={() => navigate('home')} />;
   }
 
   return null;

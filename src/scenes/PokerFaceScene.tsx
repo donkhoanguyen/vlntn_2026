@@ -34,15 +34,18 @@ const DEFAULT_ATTACKS: AttackInfo[] = [
 
 type SceneState = 'idle' | 'countdown' | 'active' | 'success' | 'fail-but-continue';
 type CameraStatus = 'idle' | 'starting' | 'running' | 'denied' | 'error';
+type Phase = 'message' | 'interaction';
 
 type PokerFaceSceneProps = {
   onComplete: (result: PokerFaceResult) => void;
+  onBack?: () => void;
   attacks?: AttackInfo[];
   stageDurationSeconds?: number;
 };
 
 export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
   onComplete,
+  onBack,
   attacks = DEFAULT_ATTACKS,
   stageDurationSeconds = STAGE_DURATION_SECONDS,
 }) => {
@@ -53,6 +56,7 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
   const wasAboveThresholdRef = useRef(false);
   const fallbackTappedRef = useRef(false);
 
+  const [phase, setPhase] = useState<Phase>('message');
   const [sceneState, setSceneState] = useState<SceneState>('idle');
   const [cameraStatus, setCameraStatus] = useState<CameraStatus>('idle');
 
@@ -70,9 +74,9 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
   const penaltyPopTimeoutRef = useRef<number | null>(null);
   const fallbackContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Initialize SmileEngine
+  // Initialize SmileEngine only after user has passed the message screen.
   useEffect(() => {
-    if (!videoRef.current || engineRef.current || cameraStatus !== 'idle') return;
+    if (phase !== 'interaction' || !videoRef.current || engineRef.current || cameraStatus !== 'idle') return;
 
     const videoEl = videoRef.current;
     const engine = new SmileEngine({
@@ -116,7 +120,7 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
       engine.stop();
       engineRef.current = null;
     };
-  }, [cameraStatus]);
+  }, [phase, cameraStatus]);
 
   // Countdown 3-2-1 before starting
   useEffect(() => {
@@ -272,25 +276,65 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
 
   const statusText = (() => {
     if (sceneState === 'success') {
-      return "Okay, you're stronger than I thought.";
+      return "Thank you for trusting us with your meals and your moments.";
     }
     if (sceneState === 'fail-but-continue') {
-      return "Your smile is too powerful to contain anyway.";
+      return "Thank you for trusting us with your meals and your moments.";
     }
     if (showCameraErrorOverlay) {
       return "Camera isn't available. Try not to tap the moving button instead.";
     }
-    return "Don't smile. Not even a little.";
+    return "We measure, prepare, check, and re-check. Keep it together.";
   })();
+
+  // Message section first (speech.md §3)
+  if (phase === 'message') {
+    return (
+      <div className="app-shell">
+        <div className="app-shell-header">
+          <div className="app-shell-header-left">
+            <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+              Back to home
+            </button>
+            <div className="app-pill brand">Don Kitchen</div>
+          </div>
+          <div className="app-title-block">
+            <div className="app-title">We Pay Attention to Every Detail.</div>
+            <div className="app-subtitle">Meticulous When It Matters</div>
+          </div>
+        </div>
+        <div className="app-shell-inner scene-message-block">
+          <div className="scene-message-body">
+            <p>
+              As smiley as we are, we know when to lock in and quit playing around. Knife chefs at <span className="brand">Don Kitchen</span> have poker face during knife work.
+            </p>
+            <p className="scene-message-cta">Matter of fact you can try it right now.</p>
+          </div>
+          <button
+            type="button"
+            className="button"
+            onClick={() => setPhase('interaction')}
+          >
+            Try it now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell">
       <div className="app-shell-header">
-        <div className="app-title-block">
-          <div className="app-title">Keep It Together</div>
-          <div className="app-subtitle">Poker face challenge</div>
+        <div className="app-shell-header-left">
+          <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+            Back to home
+          </button>
+          <div className="app-pill brand">Don Kitchen</div>
         </div>
-        <div className="app-pill">Scene · Poker face</div>
+        <div className="app-title-block">
+          <div className="app-title">We Pay Attention to Every Detail.</div>
+          <div className="app-subtitle">Meticulous When It Matters — because the details are what make the difference.</div>
+        </div>
       </div>
 
       <div className="app-shell-inner">
@@ -324,7 +368,7 @@ export const PokerFaceScene: React.FC<PokerFaceSceneProps> = ({
 
         <div className="score-panel poker-panel">
           <div className="poker-composure-section">
-            <div className="poker-composure-label">KEEP IT TOGETHER</div>
+            <div className="poker-composure-label">EVERY DETAIL MATTERS</div>
             <div className="meter-track poker-meter">
               <div
                 className="meter-fill poker-meter-fill"

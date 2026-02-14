@@ -18,16 +18,19 @@ export type SmileChargeResult = {
 
 type SmileChargeSceneProps = {
   onComplete: (result: SmileChargeResult) => void;
+  onBack?: () => void;
 };
 
-export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }) => {
+type Phase = 'message' | 'interaction';
+
+export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete, onBack }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const engineRef = useRef<SmileEngine | null>(null);
 
-  // Refs to always have the latest smile + fallback values inside the timer loop.
   const smileScoreRef = useRef(0);
   const fallbackHeldRef = useRef(false);
 
+  const [phase, setPhase] = useState<Phase>('message');
   const [sceneState, setSceneState] = useState<SceneState>('idle');
   const [cameraStatus, setCameraStatus] = useState<CameraStatus>('idle');
 
@@ -54,9 +57,9 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }
     }
   }, [fallbackHeld]);
 
-  // Initialize SmileEngine once the video element is available.
+  // Initialize SmileEngine only after user has passed the message screen.
   useEffect(() => {
-    if (!videoRef.current || engineRef.current || cameraStatus !== 'idle') return;
+    if (phase !== 'interaction' || !videoRef.current || engineRef.current || cameraStatus !== 'idle') return;
 
     const videoEl = videoRef.current;
     const engine = new SmileEngine({
@@ -104,7 +107,7 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }
       engine.stop();
       engineRef.current = null;
     };
-  }, [cameraStatus]);
+  }, [phase, cameraStatus]);
 
   // Progress integration loop (100ms tick).
   useEffect(() => {
@@ -172,7 +175,7 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }
 
   const statusText = (() => {
     if (sceneState === 'completed') {
-      return 'You did it. This is exactly the warmth I wanted.';
+      return "Thank you for letting us share that love with you.";
     }
 
     if (showCameraErrorOverlay) {
@@ -188,24 +191,70 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }
     }
 
     if (hasStrongSmile) {
-      return 'Hold that smile and charge up the warmth ingredient.';
+      return 'Hold that smile — cooking with energy, warmth, and love.';
     }
 
     if (progressRatio > 0.2) {
       return "Don't let it leak away…";
     }
 
-    return 'When you smile, this little jar fills with your warmth.';
+    return "When it's made with fun, you can feel it. Smile to fill the jar.";
   })();
+
+  // Message section first (speech.md §2)
+  if (phase === 'message') {
+    return (
+      <div className="app-shell">
+        <div className="app-shell-header">
+          <div className="app-shell-header-left">
+            <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+              Back to home
+            </button>
+            <div className="app-pill brand">Don Kitchen</div>
+          </div>
+          <div className="app-title-block">
+            <div className="app-title">We Cook with Love. And a Little Fun.</div>
+            <div className="app-subtitle">Food with Love &amp; Fun</div>
+          </div>
+        </div>
+        <div className="app-shell-inner scene-message-block">
+          <div className="scene-message-body">
+            <p>
+              We make sure that our staff at <span className="brand">Don Kitchen</span> brings the energy and love into the food making process. We treat ingredients and our craft with respect and use joy as a special form of seasoning here at <span className="brand">Don Kitchen</span>—a secret ingredient.
+            </p>
+            <p>
+              From the first ingredient to the final plating, our goal has always been the same: to serve you something that feels special.
+            </p>
+            <p>
+              Because when food is made with love, you can taste it. And when it&apos;s made with fun, you can feel it.
+            </p>
+            <p className="scene-message-cta">Matter of fact you can try it right now.</p>
+          </div>
+          <button
+            type="button"
+            className="button"
+            onClick={() => setPhase('interaction')}
+          >
+            Try it now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell">
       <div className="app-shell-header">
-        <div className="app-title-block">
-          <div className="app-title">Warmth Ingredient</div>
-          <div className="app-subtitle">Smile to fill the jar</div>
+        <div className="app-shell-header-left">
+          <button type="button" className="button button-secondary app-back-btn" onClick={onBack ?? (() => {})}>
+            Back to home
+          </button>
+          <div className="app-pill brand">Don Kitchen</div>
         </div>
-        <div className="app-pill">Scene · Smile charge</div>
+        <div className="app-title-block">
+          <div className="app-title">We Cook with Love. And a Little Fun.</div>
+          <div className="app-subtitle">Food with Love &amp; Fun — because when food is made with love, you can taste it.</div>
+        </div>
       </div>
 
       <div className="app-shell-inner">
@@ -256,7 +305,7 @@ export const SmileChargeScene: React.FC<SmileChargeSceneProps> = ({ onComplete }
                 />
                 <div className="charge-jar-highlight" />
               </div>
-              <div className="charge-jar-label">Warmth</div>
+              <div className="charge-jar-label">Love &amp; Fun</div>
             </div>
           </div>
 
